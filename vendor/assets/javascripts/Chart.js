@@ -2271,7 +2271,7 @@
 		scaleGridLineWidth : 1,
 		
 		//Boolean - Whether the bars should start at the origin, or the bottom of the scale.
-+		barBeginAtOrigin: true,
+		barBeginAtOrigin: true,
 
 		//Boolean - Whether to show horizontal lines (except X axis)
 		scaleShowHorizontalLines: true,
