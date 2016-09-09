@@ -1380,7 +1380,7 @@
 			return this.base - this.y;
 		},
 		inRange : function(chartX,chartY){
-			return (chartX >= this.x - this.width/2 && chartX <= this.x + this.width/2) && (chartY >= this.y && chartY <= this.base);
+			return (chartX >= this.x - this.width/2 && chartX <= this.x + this.width/2) && (chartY >= Math.min(this.y, this.base) && chartY <= Math.max(this.y, this.base));
 		}
 	});
 
@@ -2269,6 +2269,9 @@
 
 		//Number - Width of the grid lines
 		scaleGridLineWidth : 1,
+		
+		//Boolean - Whether the bars should start at the origin, or the bottom of the scale.
++		barBeginAtOrigin: true,
 
 		//Boolean - Whether to show horizontal lines (except X axis)
 		scaleShowHorizontalLines: true,
@@ -2377,19 +2380,32 @@
 
 			this.buildScale(data.labels);
 
-			this.BarClass.prototype.base = this.scale.endPoint;
+			this.BarClass.prototype.base = this.getBase();
 
 			this.eachBars(function(bar, index, datasetIndex){
 				helpers.extend(bar, {
 					width : this.scale.calculateBarWidth(this.datasets.length),
 					x: this.scale.calculateBarX(this.datasets.length, datasetIndex, index),
-					y: this.scale.endPoint
+					y: bar.base
 				});
 				bar.save();
 			}, this);
 
 			this.render();
 		},
+		getBase : function () {
++			if (this.options.barBeginAtOrigin && this.scale.min < 0) {
++				return (
++					this.scale.endPoint -
++					(-1 * parseFloat(this.scale.min)) /
++					((this.scale.max - this.scale.min) * 1.00) *
++					(this.scale.endPoint - this.scale.startPoint)
++				);
++			}
++			else {
++				return this.scale.endPoint;
++			}
++		},
 		update : function(){
 			this.scale.update();
 			// Reset any highlight colours before updating.
@@ -2448,6 +2464,7 @@
 				fontFamily : this.options.scaleFontFamily,
 				valuesCount : labels.length,
 				beginAtZero : this.options.scaleBeginAtZero,
+				beginAtOrigin : this.options.barBeginAtOrigin,
 				integersOnly : this.options.scaleIntegersOnly,
 				calculateYRange: function(currentHeight){
 					var updatedRanges = helpers.calculateScaleRange(
@@ -2493,9 +2510,9 @@
 					label : label,
 					datasetLabel: this.datasets[datasetIndex].label,
 					x: this.scale.calculateBarX(this.datasets.length, datasetIndex, this.scale.valuesCount+1),
-					y: this.scale.endPoint,
+					y: this.getBase(),
 					width : this.scale.calculateBarWidth(this.datasets.length),
-					base : this.scale.endPoint,
+					base : this.getBase(),
 					strokeColor : this.datasets[datasetIndex].strokeColor,
 					fillColor : this.datasets[datasetIndex].fillColor
 				}));
@@ -2515,8 +2532,8 @@
 		},
 		reflow : function(){
 			helpers.extend(this.BarClass.prototype,{
-				y: this.scale.endPoint,
-				base : this.scale.endPoint
+				y: this.getBase(),
++				base : this.getBase()
 			});
 			var newScaleProps = helpers.extend({
 				height : this.chart.height,
@@ -2536,7 +2553,7 @@
 			helpers.each(this.datasets,function(dataset,datasetIndex){
 				helpers.each(dataset.bars,function(bar,index){
 					if (bar.hasValue()){
-						bar.base = this.scale.endPoint;
+						bar.base = this.getBase();
 						//Transition then draw
 						bar.transition({
 							x : this.scale.calculateBarX(this.datasets.length, datasetIndex, index),
