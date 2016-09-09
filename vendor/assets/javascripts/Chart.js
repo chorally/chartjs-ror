@@ -2533,7 +2533,7 @@
 		reflow : function(){
 			helpers.extend(this.BarClass.prototype,{
 				y: this.getBase(),
-+				base : this.getBase()
+				base : this.getBase()
 			});
 			var newScaleProps = helpers.extend({
 				height : this.chart.height,
