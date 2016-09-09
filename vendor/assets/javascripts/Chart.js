@@ -2394,18 +2394,18 @@
 			this.render();
 		},
 		getBase : function () {
-+			if (this.options.barBeginAtOrigin && this.scale.min < 0) {
-+				return (
-+					this.scale.endPoint -
-+					(-1 * parseFloat(this.scale.min)) /
-+					((this.scale.max - this.scale.min) * 1.00) *
-+					(this.scale.endPoint - this.scale.startPoint)
-+				);
-+			}
-+			else {
-+				return this.scale.endPoint;
-+			}
-+		},
+			if (this.options.barBeginAtOrigin && this.scale.min < 0) {
+				return (
+					this.scale.endPoint -
+					(-1 * parseFloat(this.scale.min)) /
+					((this.scale.max - this.scale.min) * 1.00) *
+					(this.scale.endPoint - this.scale.startPoint)
+				);
+			}
+			else {
+				return this.scale.endPoint;
+			}
+		},
 		update : function(){
 			this.scale.update();
 			// Reset any highlight colours before updating.
